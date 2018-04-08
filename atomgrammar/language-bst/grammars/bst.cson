@@ -1,0 +1,280 @@
+
+# TextMate tutorial: http://manual.macromates.com/en/language_grammars
+
+# Regex to convert keys to unquoted: '(include|match|captures|begin|end|beginCaptures|endCaptures|name|patterns|0|1|2|3|4|5|6|7|8|9|comment|fileTypes|scopeName|repository|contentName|firstLineMatch|foldingStartMarker|foldingStopMarker)':
+
+scopeName: 'source.bst' # <scope> should be a short, unique indicator for the language ("js", "php", "c", etc.)
+name: 'BST' # The title that will show up in grammar selection and on your status bar.
+fileTypes: [ # An array of file extensions.
+  'bst'
+]
+#firstLineMatch: '' # A regular expression that is matched against the first line of the document when Atom is trying to decide if the grammar is appropriate. Useful for shell scripts, mostly.
+foldingStartMarker: '' # A regular expression that checks for the start of a foldable area (such as `{`).
+foldingStopMarker: '' # A regular expression that checks for the end of a foldable area (such as `}`). If both folding markers are matched in the same line, there will be no foldable area.
+patterns: [ # An array of individual pattern declarations.
+  {
+    # Comments
+    begin: '^#'
+    end: '$'
+    name: 'comment.line.number-sign'
+  }
+  {
+    # Tags (primary, applied to stories)
+    match: '^(.+)=(.*)$'
+    name: 'entity.name.primarytag'
+    captures:
+      '1':
+        name: 'support.constant.primarytagname'
+      '2':
+        name: 'string.quoted.primarytagvalue'
+  }
+  {
+    # Tags (secondary, applied to nodes or options)
+    match: '^(::)(.+)=(.*)$'
+    captures:
+      '1':
+        name: 'keyword.operator.secondarytag'
+      '2':
+        name: 'support.constant.secondarytagname'
+      '3':
+        name: 'string.quoted.secondarytagvalue'
+  }
+  {
+    # Beginning of Node IDs
+    match: '(^(\\d+)|(\\*))(:)((&)|(>))?'
+    name: 'entity.name.nodedef'
+    captures:
+      '1':
+        name: 'entity.name.nodedef.id'
+      '2':
+        name: 'constant.numeric.id'
+      '3':
+        name: 'keyword.other.autoid'
+      '4':
+        name: 'keyword.operator.id'
+      '5':
+        name: 'entity.name.nodedef.nodetype'
+      '6':
+        name: 'keyword.other.logical'
+      '7':
+        name: 'keyword.other.virtual'
+  }
+  {
+    # Node option
+    name: 'meta.node.option'
+    # regex hell starts here
+    match: ':(.+?)(\\|)(.+?)(?:(\\|)(?:(?:([\\w_]+?):(.*?))|(.+?)))?(?:[\\n\\r]|$)'
+    captures:
+      1:
+        name: 'entity.name.optiontext'
+      2:
+        name: 'keyword.control'
+      3:
+        patterns: [
+          {
+            include: '#nnd'
+          }
+        ]
+      4:
+        name: 'keyword.control'
+      5:
+        name: 'support.function.actionorchecker'
+      6:
+        name: 'entity.name.optiondesc'
+        patterns: [
+          {
+            include: '#scriptargument'
+          }
+        ]
+      7:
+        name: 'meta.optionscript'
+        patterns: [
+          {
+            include: '#checker'
+          }
+          {
+            include: '#action'
+          }
+        ]
+  }
+  {
+    # Logical node line script
+    name: 'meta.node.linescript'
+    match: '^([\\w_-]+?):(.*?)$'
+    captures:
+      1:
+        name: 'support.function.action'
+      2:
+        name: 'entity.name.actiondesc'
+        patterns: [
+          {
+            include: '#scriptargument'
+          }
+        ]
+  }
+  {
+    name: 'meta.node.tertiary'
+    match: '(.+?)\\?((?:\\{.+?:.*?})+)(?::(.+))?(?:[\\r\\n]|$)'
+    captures:
+      1:
+        name: 'meta.node.tertiary.checkers'
+        patterns: [
+          {
+            include: '#checker'
+          }
+        ]
+      2:
+        name: 'meta.node.tertiary.actionsyes'
+        patterns: [
+          {
+            include: '#action'
+          }
+        ]
+      3:
+        name: 'meta.node.tertiary.actionsno'
+        patterns: [
+          {
+            include: '#action'
+          }
+        ]
+  }
+  {
+    name: 'meta.node.return'
+    match: ':(.+)(?:[\\r\\n]|$)'
+    captures:
+      1:
+        name: 'meta.node.return.nnd'
+        patterns: [
+          {
+            include: '#nnd'
+          }
+        ]
+  }
+  {
+    # Variables
+    name: 'meta.variableinclusion'
+    match: '\\$\\{(?:[&>]([\\w_]+)|([\\w_]+))}'
+    captures:
+      1:
+        name: 'meta.inclnnd'
+        patterns: [
+          {
+            include: '#nnd'
+          }
+        ]
+      2:
+        name: 'variable.other.regvar'
+  }
+  {
+    include: 'source.gfm'
+  }
+]
+repository: # An array of rules. If you're going to be referencing one bit of code over and over again, stick it here so that you can edit all in one place.
+  ruleName: # Can be anything.
+    {
+      name: ''
+      match: ''
+      end: ''
+      endCaptures:
+        0:
+          name: ''
+    }
+  action:
+    {
+      name: 'meta.script.action'
+      match: '\\{(.+?):(.*?)}'
+      captures:
+        1:
+          name: 'support.function.action'
+        2:
+          name: 'entity.name.actiondesc'
+          patterns: [
+            {
+              include: '#scriptargument'
+            }
+          ]
+    }
+  checker:
+    {
+      name: 'meta.script.checker'
+      match: '\\[(.+?):(.*?)]'
+      captures:
+        1:
+          name: 'support.function.checker'
+        2:
+          name: 'entity.name.checkerdesc'
+          patterns: [
+            {
+              include: '#scriptargument'
+            }
+          ]
+    }
+  extnnd:
+    {
+      name: 'meta.script.extnnd'
+      match: '(.+?):(.*?)'
+      captures:
+        1:
+          name: 'support.function.extnnd'
+        2:
+          name: 'entity.name.extnnddesc'
+          patterns: [
+            {
+              include: '#scriptargument'
+            }
+          ]
+    }
+  scriptargument:
+    {
+      name: 'entity.name.descpart'
+      # I'll be honest, this regex looks terrifying.
+      # It matches an argument and automatically detects whether it's
+      # - a number
+      # - likely to be a variable (follows the expected format)
+      # - some random string
+      match: '(?:[,:]|^)(?:(-?\\d+)|([\\w_]+?)|(.+?))(?=[\\],}\\r\\n]|$)'
+      captures:
+        1:
+          name: 'constant.numeric.id'
+        2:
+          name: 'variable.other.regvar'
+        3:
+          name: 'string.unquoted'
+    }
+  nnd:
+    {
+      name: 'meta.script.nnd'
+      match: '((.+),(.+))(\\[.+?\\])|(.+?:.+)|(-?\\d+)|([\\w_]+)'
+      captures:
+        # i suffered while making these i hope you understand that
+        1:
+          name: 'meta.script.nnd.ifnnd.possibilities'
+        2:
+          patterns: [
+            {
+              include: '#nnd'
+            }
+          ]
+        3:
+          patterns: [
+            {
+              include: '#nnd'
+            }
+          ]
+        4:
+          patterns: [
+            {
+              include: '#checker'
+            }
+          ]
+        5:
+          patterns: [
+            {
+              include: '#extnnd'
+            }
+          ]
+        6:
+          name: 'constant.numeric.id'
+        7:
+          name: 'variable.other.regvar'
+    }

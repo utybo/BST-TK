@@ -1,0 +1,15 @@
+{
+  "name": "language-bst",
+  "main": "./lib/language-bst",
+  "version": "1.0.0",
+  "description": "Syntax colors for the BST language",
+  "keywords": [
+  ],
+  "repository": "https://github.com/utybo/BST-TK",
+  "license": "MIT",
+  "engines": {
+    "atom": ">=1.0.0 <2.0.0"
+  },
+  "dependencies": {
+  }
+}
