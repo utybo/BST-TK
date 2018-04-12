@@ -20,7 +20,7 @@ patterns: [ # An array of individual pattern declarations.
   }
   {
     # Tags (primary, applied to stories)
-    match: '^(.+)=(.*)$'
+    match: '^([\\w_]+)=(.*)$'
     name: 'entity.name.primarytag'
     captures:
       '1':
